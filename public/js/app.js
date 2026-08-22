@@ -82,7 +82,7 @@
       return;
     }
     tourView.innerHTML = selectedTours.map(playerMarkup).join("");
-    setPageStatus(`${districtLabels[district]} 관광지 ${selectedTours.length}곳`);
+  //  setPageStatus(`${districtLabels[district]} 관광지 ${selectedTours.length}곳`);
 
     const results = await Promise.allSettled(selectedTours.map((tour, index) => window.create360Player({
       elementId: `player-${tour.districtId}-${index}`,
