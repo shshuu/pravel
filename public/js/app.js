@@ -60,7 +60,7 @@
         <img class="tour-title-image" src="${tour.titleImage}" alt="${tour.name}">
         <div class="tour-content">
           <section class="video-column" aria-label="${tour.name} 360도 영상">
-            <div class="player-shell">
+            <div class="pravel-player-wrapper player-shell">
               <div id="${playerId}" class="youtube-player"></div>
               <p id="${statusId}" class="player-status" role="status">360° 영상을 불러오는 중...</p>
             </div>
