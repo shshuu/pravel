@@ -126,6 +126,8 @@
     history.pushState({}, "", nextUrl);
     closeDrawer();
     render();
+
+    window.scrollTo(0, 0);
   }
 
   window.pravelNavigate = navigate; // window 객체에 navigate 함수 등록
