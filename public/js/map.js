@@ -41,12 +41,29 @@
           }
         }).addTo(map);
 
+        // 마커 생성
         const markers = L.markerClusterGroup();
+        const districtIdByName = {
+          "강서구": "gangseo",
+          "기장군": "gijang",
+          "부산진구": "busanjin",
+          "서구": "seo",
+          "해운대구": "haeundae"
+        };
+
         places.forEach((place) => {
-          L.marker([place.latitude, place.longitude])
-            .bindTooltip(place.place)
-            .bindPopup(`<strong>${place.place}</strong><br>${place.address}`)
-            .addTo(markers);
+          const districtName = place.place.split("_")[0];
+          const districtId = districtIdByName[districtName];
+
+          const marker = L.marker([place.latitude, place.longitude])
+                          .bindTooltip(place.place)
+                          .addTo(markers);
+          
+          marker.on("click", () => {
+            if (!districtId) return;
+
+            window.pravelNavigate(districtId);
+          });
         });
         map.addLayer(markers);
         // setStatus(`지도 준비 완료 — 관광지 마커 ${places.length}개`);

@@ -27,7 +27,7 @@
 
   function setPageStatus(message, isError = false) {
     if (!pageStatus) return;
-    
+
     pageStatus.textContent = message;
     pageStatus.classList.toggle("is-error", isError);
     pageStatus.hidden = !message;
@@ -127,6 +127,8 @@
     closeDrawer();
     render();
   }
+
+  window.pravelNavigate = navigate; // window 객체에 navigate 함수 등록
 
   menu.addEventListener("click", (event) => {
     const button = event.target.closest("button[data-district]");
