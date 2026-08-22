@@ -49,7 +49,7 @@
             .addTo(markers);
         });
         map.addLayer(markers);
-        setStatus(`지도 준비 완료 — 관광지 마커 ${places.length}개`);
+        // setStatus(`지도 준비 완료 — 관광지 마커 ${places.length}개`);
       }
       window.setTimeout(() => map.invalidateSize(), 0);
       return map;
