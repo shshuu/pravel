@@ -26,6 +26,8 @@
   }
 
   function setPageStatus(message, isError = false) {
+    if (!pageStatus) return;
+    
     pageStatus.textContent = message;
     pageStatus.classList.toggle("is-error", isError);
     pageStatus.hidden = !message;
