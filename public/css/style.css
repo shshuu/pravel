@@ -75,6 +75,17 @@ img { display: block; max-width: 100%; }
 .pravel-player-wrapper:fullscreen .youtube-player iframe { width: 100%; height: 100%; }
 .youtube-link-button { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; margin-top: .75rem; border: 1px solid #305c4a; border-radius: 5px; padding: .6rem .9rem; color: #fff; background: #305c4a; text-decoration: none; }
 .youtube-link-button:hover { background: #214634; }
+.barrier-free-card { margin-top: .9rem; border: 1px solid rgba(48, 92, 74, .42); border-radius: 8px; padding: clamp(.85rem, 2vw, 1.2rem); background: rgba(255, 255, 255, .86); overflow: hidden; }
+.barrier-free-heading { margin: 0 0 .85rem; color: #173f2e; font-size: 1.1rem; }
+.barrier-free-message { margin: 0; line-height: 1.65; }
+.barrier-free-card[data-state="error"] { border-color: rgba(157, 31, 47, .55); }
+.barrier-free-card[data-state="error"] .barrier-free-message { color: #9d1f2f; }
+.barrier-free-category + .barrier-free-category { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(48, 92, 74, .2); }
+.barrier-free-category h3 { margin: 0 0 .6rem; color: #305c4a; font-size: .98rem; }
+.barrier-free-list { display: grid; grid-template-columns: minmax(7.5rem, .42fr) minmax(0, 1fr); gap: .45rem .8rem; margin: 0; }
+.barrier-free-list dt { font-weight: 700; }
+.barrier-free-list dd { min-width: 0; margin: 0; line-height: 1.58; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
+.barrier-free-source { margin: 1rem 0 0; padding-top: .7rem; border-top: 1px solid rgba(48, 92, 74, .2); color: #57534c; font-size: .78rem; }
 
 .test-page { display: grid; min-height: 100vh; place-items: center; padding: 1.5rem; }
 .test-panel { width: min(960px, 100%); padding: clamp(1rem, 3vw, 2rem); background: var(--paper); box-shadow: 0 3px 16px rgba(0, 0, 0, .15); }
@@ -103,5 +114,7 @@ img { display: block; max-width: 100%; }
   .home-view, .tour-card { padding: 1rem; }
   .tour-content { grid-template-columns: 1fr; }
   .youtube-link-button { width: 100%; }
+  .barrier-free-list { grid-template-columns: 1fr; gap: .2rem; }
+  .barrier-free-list dd { margin-bottom: .6rem; }
   #map { min-height: 320px; height: 55vh; }
 }
