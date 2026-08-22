@@ -61,6 +61,7 @@
           playerVars: {
             autoplay: 0,
             controls: 1,
+            fs: 0,
             enablejsapi: 1,
             origin: window.location.origin,
             playsinline: 1,
@@ -74,6 +75,8 @@
       });
 
       let overlay = null;
+      let fullscreenButton = null;
+      let fullscreenChangeHandler = null;
       const controller = {
         player,
         videoId,
@@ -119,6 +122,19 @@
             return player.getPlayerState();
           } catch (_) {
             return null;
+          }
+        },
+        async toggleFullscreen() {
+          if (!shell || !document.fullscreenEnabled) return false;
+          try {
+            if (document.fullscreenElement === shell) {
+              await document.exitFullscreen();
+            } else if (!document.fullscreenElement) {
+              await shell.requestFullscreen();
+            }
+            return true;
+          } catch (_) {
+            return false;
           }
         },
         enablePointerGestures() {
@@ -182,10 +198,29 @@
           return this.enablePointerGestures();
         },
         destroy() {
+          if (document.fullscreenElement === shell) document.exitFullscreen().catch(() => {});
+          if (fullscreenChangeHandler) document.removeEventListener("fullscreenchange", fullscreenChangeHandler);
           overlay?.remove();
+          fullscreenButton?.remove();
           if (typeof player.destroy === "function") player.destroy();
         }
       };
+
+      if (shell) {
+        fullscreenButton = document.createElement("button");
+        fullscreenButton.type = "button";
+        fullscreenButton.className = "pravel-fullscreen-button";
+        fullscreenButton.textContent = "전체화면";
+        fullscreenButton.setAttribute("aria-label", "전체화면으로 보기");
+        fullscreenButton.addEventListener("click", () => controller.toggleFullscreen());
+        shell.appendChild(fullscreenButton);
+        fullscreenChangeHandler = () => {
+          const isFullscreen = document.fullscreenElement === shell;
+          fullscreenButton.textContent = isFullscreen ? "전체화면 종료" : "전체화면";
+          fullscreenButton.setAttribute("aria-label", isFullscreen ? "전체화면 종료" : "전체화면으로 보기");
+        };
+        document.addEventListener("fullscreenchange", fullscreenChangeHandler);
+      }
 
       const spherical = controller.readSphericalProperties();
       if (spherical) {

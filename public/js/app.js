@@ -54,16 +54,18 @@
   function playerMarkup(tour, index) {
     const playerId = `player-${tour.districtId}-${index}`;
     const statusId = `${playerId}-status`;
+    const youtubeLink = `https://www.youtube.com/watch?v=${encodeURIComponent(tour.youtubeId)}`;
     return `
       <article class="tour-card">
         <h1 class="sr-only">${tour.district} ${tour.name}</h1>
         <img class="tour-title-image" src="${tour.titleImage}" alt="${tour.name}">
         <div class="tour-content">
           <section class="video-column" aria-label="${tour.name} 360도 영상">
-            <div class="player-shell">
+            <div class="pravel-player-wrapper player-shell">
               <div id="${playerId}" class="youtube-player"></div>
               <p id="${statusId}" class="player-status" role="status">360° 영상을 불러오는 중...</p>
             </div>
+            <a href="${youtubeLink}" target="_blank" rel="noopener noreferrer" class="youtube-link-button">YouTube에서 고화질로 보기 ↗</a>
           </section>
           <section class="detail-column">
             <img src="${tour.detailImage}" alt="${tour.name} 상세 안내">
