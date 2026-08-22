@@ -37,7 +37,7 @@
           },
           onEachFeature: (feature, layer) => {
             const name = feature.properties && feature.properties.name ? feature.properties.name : feature.id;
-            layer.bindTooltip(`${name} (${valueByDistrict.get(feature.id) || 0})`);
+            layer.bindTooltip(`${name}`);
           }
         }).addTo(map);
 
