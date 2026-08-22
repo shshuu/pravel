@@ -61,6 +61,8 @@ img { display: block; max-width: 100%; }
 .pravel-player-wrapper:fullscreen { width: 100vw; height: 100vh; aspect-ratio: auto; background: #000; }
 .pravel-player-wrapper:fullscreen .youtube-player,
 .pravel-player-wrapper:fullscreen .youtube-player iframe { width: 100%; height: 100%; }
+.youtube-link-button { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; margin-top: .75rem; border: 1px solid #305c4a; border-radius: 5px; padding: .6rem .9rem; color: #fff; background: #305c4a; text-decoration: none; }
+.youtube-link-button:hover { background: #214634; }
 
 .test-page { display: grid; min-height: 100vh; place-items: center; padding: 1.5rem; }
 .test-panel { width: min(960px, 100%); padding: clamp(1rem, 3vw, 2rem); background: var(--paper); box-shadow: 0 3px 16px rgba(0, 0, 0, .15); }
@@ -88,5 +90,6 @@ img { display: block; max-width: 100%; }
   .main-content { padding: 1rem; }
   .home-view, .tour-card { padding: 1rem; }
   .tour-content { grid-template-columns: 1fr; }
+  .youtube-link-button { width: 100%; }
   #map { min-height: 320px; height: 55vh; }
 }
