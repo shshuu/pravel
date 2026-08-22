@@ -9,6 +9,26 @@
     seo: "서구",
     haeundae: "해운대구"
   };
+  const ACCESSIBILITY_LABELS = {
+    parking: "장애인 주차",
+    route: "접근로",
+    wheelchair: "휠체어 이용",
+    exit: "출입구",
+    elevator: "엘리베이터",
+    restroom: "장애인 화장실",
+    handicapetc: "기타 이동 편의",
+    audioguide: "음성 안내",
+    brailepromotion: "점자 안내",
+    braileblock: "점자블록",
+    stroller: "유모차",
+    lactationroom: "수유실"
+  };
+  const ACCESSIBILITY_CATEGORY_LABELS = {
+    physical: "이동·시설",
+    visual: "시각 편의",
+    infantFamily: "영유아 동반 편의"
+  };
+  const accessibilityCategoryOrder = ["physical", "visual", "infantFamily"];
   const menu = document.getElementById("district-menu");
   const homeView = document.getElementById("home-view");
   const tourView = document.getElementById("tour-view");
@@ -19,6 +39,7 @@
   let tours = [];
   let playerControllers = [];
   let renderVersion = 0;
+  const barrierFreeCache = new Map();
 
   function selectedDistrictFromUrl() {
     const district = new URLSearchParams(window.location.search).get("district") || "home";
@@ -51,9 +72,122 @@
     playerControllers = [];
   }
 
+  function addBarrierFreeSource(card) {
+    const source = document.createElement("p");
+    source.className = "barrier-free-source";
+    source.textContent = "한국관광공사 무장애 여행정보 제공";
+    card.appendChild(source);
+  }
+
+  function setBarrierFreeMessage(card, message, state) {
+    card.replaceChildren();
+    card.dataset.state = state;
+
+    const heading = document.createElement("h2");
+    heading.className = "barrier-free-heading";
+    heading.textContent = "무장애 관광 정보";
+    card.appendChild(heading);
+
+    const status = document.createElement("p");
+    status.className = "barrier-free-message";
+    status.textContent = message;
+    card.appendChild(status);
+    addBarrierFreeSource(card);
+  }
+
+  function appendBarrierFreeDetails(card, accessibility) {
+    card.replaceChildren();
+    card.dataset.state = "ready";
+
+    const heading = document.createElement("h2");
+    heading.className = "barrier-free-heading";
+    heading.textContent = "무장애 관광 정보";
+    card.appendChild(heading);
+
+    let visibleFieldCount = 0;
+    for (const category of accessibilityCategoryOrder) {
+      const fields = accessibility?.[category];
+      if (!fields || typeof fields !== "object") continue;
+
+      const entries = Object.entries(fields).filter(([field, value]) => (
+        Object.hasOwn(ACCESSIBILITY_LABELS, field) && typeof value === "string" && value.trim()
+      ));
+      if (entries.length === 0) continue;
+
+      const section = document.createElement("section");
+      section.className = "barrier-free-category";
+      const categoryHeading = document.createElement("h3");
+      categoryHeading.textContent = ACCESSIBILITY_CATEGORY_LABELS[category];
+      section.appendChild(categoryHeading);
+
+      const list = document.createElement("dl");
+      list.className = "barrier-free-list";
+      for (const [field, value] of entries) {
+        const label = document.createElement("dt");
+        label.textContent = ACCESSIBILITY_LABELS[field];
+        const description = document.createElement("dd");
+        description.textContent = value;
+        list.append(label, description);
+        visibleFieldCount += 1;
+      }
+      section.appendChild(list);
+      card.appendChild(section);
+    }
+
+    if (visibleFieldCount === 0) {
+      const message = document.createElement("p");
+      message.className = "barrier-free-message";
+      message.textContent = "한국관광공사에서 제공하는 무장애 관광정보가 없습니다.";
+      card.appendChild(message);
+    }
+    addBarrierFreeSource(card);
+  }
+
+  async function getBarrierFreeInfo(contentId) {
+    if (barrierFreeCache.has(contentId)) return barrierFreeCache.get(contentId);
+
+    const request = fetch(`/api/tour/barrier-free?contentId=${encodeURIComponent(contentId)}`)
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Barrier-free API request failed");
+        const data = await response.json();
+        if (!data?.ok) throw new Error("Barrier-free API response failed");
+        return data;
+      });
+    barrierFreeCache.set(contentId, request);
+
+    try {
+      return await request;
+    } catch (error) {
+      barrierFreeCache.delete(contentId);
+      throw error;
+    }
+  }
+
+  async function renderBarrierFreeCard(tour, mountId, version) {
+    const card = document.getElementById(mountId);
+    if (!card) return;
+
+    const contentId = tour.tourApi?.contentId;
+    if (!contentId) {
+      setBarrierFreeMessage(card, "한국관광공사에서 제공하는 무장애 관광정보가 없습니다.", "empty");
+      return;
+    }
+
+    setBarrierFreeMessage(card, "무장애 관광정보를 불러오는 중...", "loading");
+    try {
+      const data = await getBarrierFreeInfo(contentId);
+      if (version !== renderVersion || !card.isConnected) return;
+      appendBarrierFreeDetails(card, data.accessibility);
+    } catch (_) {
+      if (version !== renderVersion || !card.isConnected) return;
+      setBarrierFreeMessage(card, "무장애 관광정보를 불러오지 못했습니다.", "error");
+    }
+  }
+
   function playerMarkup(tour, index) {
     const playerId = `player-${tour.districtId}-${index}`;
     const statusId = `${playerId}-status`;
+    const barrierFreeId = `${playerId}-barrier-free`;
     const youtubeLink = `https://www.youtube.com/watch?v=${encodeURIComponent(tour.youtubeId)}`;
     return `
       <article class="tour-card">
@@ -65,6 +199,7 @@
               <div id="${playerId}" class="youtube-player"></div>
               <p id="${statusId}" class="player-status" role="status">360° 영상을 불러오는 중...</p>
             </div>
+            <section id="${barrierFreeId}" class="barrier-free-card" aria-live="polite"></section>
             <a href="${youtubeLink}" target="_blank" rel="noopener noreferrer" class="youtube-link-button">YouTube에서 고화질로 보기 ↗</a>
           </section>
           <section class="detail-column">
@@ -85,6 +220,10 @@
     }
     tourView.innerHTML = selectedTours.map(playerMarkup).join("");
     setPageStatus(`${districtLabels[district]} 관광지 ${selectedTours.length}곳`);
+
+    selectedTours.forEach((tour, index) => {
+      void renderBarrierFreeCard(tour, `player-${tour.districtId}-${index}-barrier-free`, version);
+    });
 
     const results = await Promise.allSettled(selectedTours.map((tour, index) => window.create360Player({
       elementId: `player-${tour.districtId}-${index}`,
