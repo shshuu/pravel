@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="부산의 관광지를 360도 영상으로 만나는 Pravel">
+    <title>부산, 360도로 담다</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+    <link rel="stylesheet" href="/css/style.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">본문으로 건너뛰기</a>
+    <header class="mobile-header">
+      <span>부산, 360도로 담다</span>
+      <button id="menu-toggle" class="menu-toggle" type="button" aria-controls="sidebar" aria-expanded="false">☰ <span class="sr-only">메뉴 열기</span></button>
+    </header>
+    <div id="drawer-backdrop" class="drawer-backdrop" hidden></div>
+    <div class="app-shell">
+      <aside id="sidebar" class="sidebar" aria-label="지역 선택 메뉴">
+        <div class="sidebar-brand">
+          <img src="/images/sidebar1.png" alt="부산, 360도로 담다">
+          <img src="/images/sidebar2.png" alt="Pravel 관광 안내">
+        </div>
+        <nav id="district-menu" class="district-menu" aria-label="지역 선택">
+          <p>지역 선택</p>
+          <button type="button" data-district="home">홈</button>
+          <button type="button" data-district="gangseo">강서구</button>
+          <button type="button" data-district="gijang">기장군</button>
+          <button type="button" data-district="busanjin">부산진구</button>
+          <button type="button" data-district="seo">서구</button>
+          <button type="button" data-district="haeundae">해운대구</button>
+        </nav>
+      </aside>
+      <main id="main-content" class="main-content" tabindex="-1">
+        <div id="page-status" class="page-status" role="status" aria-live="polite">정보를 불러오는 중...</div>
+        <section id="home-view" class="home-view" hidden>
+          <img class="main-description" src="/images/main_description.png" alt="부산, 360도로 담다 소개">
+          <section class="map-section" aria-labelledby="map-heading">
+            <h1 id="map-heading">부산 관광지 지도</h1>
+            <p id="map-status" class="map-status" role="status" aria-live="polite">지도를 불러오는 중...</p>
+            <div id="map" aria-label="부산 구군 경계와 관광지 지도"></div>
+          </section>
+        </section>
+        <section id="tour-view" class="tour-view" aria-live="polite" hidden></section>
+      </main>
+    </div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+    <script src="/js/youtube360.js?v=gesture-1"></script>
+    <script src="/js/map.js?v=gesture-1"></script>
+    <script src="/js/app.js?v=gesture-1"></script>
+  </body>
+</html>
