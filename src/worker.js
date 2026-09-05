@@ -1,6 +1,9 @@
 import { handleTourSearch } from "./api/tourSearch.js";
 import { handleTourNearby } from "./api/tourNearby.js";
 import { handleTourBarrierFree } from "./api/tourBarrierFree.js";
+import { handleTourFestivals } from "./api/tourFestivals.js";
+import { handleTourRelated } from "./api/tourRelated.js";
+import { handleTourAudio } from "./api/tourAudio.js";
 import { jsonResponse } from "./lib/http.js";
 
 /** API entry point; Tourism API secrets are read only from `env`. */
@@ -26,6 +29,18 @@ export default {
 
     if (url.pathname === "/api/tour/barrier-free") {
       return handleTourBarrierFree(request, env);
+    }
+
+    if (url.pathname === "/api/tour/festivals") {
+      return handleTourFestivals(request, env);
+    }
+
+    if (url.pathname === "/api/tour/related") {
+      return handleTourRelated(request, env);
+    }
+
+    if (url.pathname === "/api/tour/audio") {
+      return handleTourAudio(request, env);
     }
 
     if (url.pathname.startsWith("/api/")) {

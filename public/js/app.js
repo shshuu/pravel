@@ -40,6 +40,9 @@
   let playerControllers = [];
   let renderVersion = 0;
   const barrierFreeCache = new Map();
+  const festivalCache = new Map();
+  const relatedTourCache = new Map();
+  const audioGuideCache = new Map();
 
   function selectedDistrictFromUrl() {
     const district = new URLSearchParams(window.location.search).get("district") || "home";
@@ -79,6 +82,47 @@
     source.className = "barrier-free-source";
     source.textContent = "한국관광공사 무장애 여행정보 제공";
     card.appendChild(source);
+  }
+
+  function addInfoSource(card, text) {
+    const source = document.createElement("p");
+    source.className = "tour-info-source";
+    source.textContent = text;
+    card.appendChild(source);
+  }
+
+  function setInfoMessage(card, headingText, message, state, sourceText) {
+    card.replaceChildren();
+    card.dataset.state = state;
+
+    const heading = document.createElement("h2");
+    heading.className = "tour-info-heading";
+    heading.textContent = headingText;
+    const status = document.createElement("p");
+    status.className = "tour-info-message";
+    status.textContent = message;
+    card.append(heading, status);
+    addInfoSource(card, sourceText);
+  }
+
+  async function getJsonFromApi(url, cache, cacheKey) {
+    if (cache.has(cacheKey)) return cache.get(cacheKey);
+
+    const request = fetch(url)
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Tour API request failed");
+        const data = await response.json();
+        if (!data?.ok) throw new Error("Tour API response failed");
+        return data;
+      });
+    cache.set(cacheKey, request);
+
+    try {
+      return await request;
+    } catch (error) {
+      cache.delete(cacheKey);
+      throw error;
+    }
   }
 
   function setBarrierFreeMessage(card, message, state) {
@@ -165,6 +209,18 @@
     }
   }
 
+  async function getFestivals(district) {
+    return getJsonFromApi(`/api/tour/festivals?district=${encodeURIComponent(district)}`, festivalCache, district);
+  }
+
+  async function getRelatedTours(district) {
+    return getJsonFromApi(`/api/tour/related?district=${encodeURIComponent(district)}`, relatedTourCache, district);
+  }
+
+  async function getAudioGuide(keyword) {
+    return getJsonFromApi(`/api/tour/audio?keyword=${encodeURIComponent(keyword)}`, audioGuideCache, keyword);
+  }
+
   async function renderBarrierFreeCard(tour, mountId, version) {
     const card = document.getElementById(mountId);
     if (!card) return;
@@ -186,10 +242,169 @@
     }
   }
 
+  function appendFestivalDetails(card, items) {
+    card.replaceChildren();
+    card.dataset.state = "ready";
+    const heading = document.createElement("h2");
+    heading.className = "tour-info-heading";
+    heading.textContent = "부산 축제·행사";
+    card.appendChild(heading);
+
+    if (!Array.isArray(items) || items.length === 0) {
+      const message = document.createElement("p");
+      message.className = "tour-info-message";
+      message.textContent = "현재 확인되는 축제·행사 정보가 없습니다.";
+      card.appendChild(message);
+    } else {
+      const list = document.createElement("ul");
+      list.className = "tour-info-list";
+      for (const festival of items.slice(0, 6)) {
+        const item = document.createElement("li");
+        const title = document.createElement("strong");
+        title.textContent = festival.title || "제목 정보 없음";
+        const details = [festival.startDate, festival.endDate].filter(Boolean).join(" ~ ");
+        const meta = document.createElement("span");
+        meta.textContent = [details, festival.address].filter(Boolean).join(" · ");
+        item.append(title, meta);
+        list.appendChild(item);
+      }
+      card.appendChild(list);
+    }
+    addInfoSource(card, "한국관광공사 관광정보 제공");
+  }
+
+  async function renderFestivalCard(district, mountId, version) {
+    const card = document.getElementById(mountId);
+    if (!card) return;
+    setInfoMessage(card, "부산 축제·행사", "축제·행사 정보를 불러오는 중...", "loading", "한국관광공사 관광정보 제공");
+    try {
+      const data = await getFestivals(district);
+      if (version !== renderVersion || !card.isConnected) return;
+      appendFestivalDetails(card, data.items);
+    } catch (_) {
+      if (version !== renderVersion || !card.isConnected) return;
+      setInfoMessage(card, "부산 축제·행사", "축제·행사 정보를 불러오지 못했습니다.", "error", "한국관광공사 관광정보 제공");
+    }
+  }
+
+  function appendRelatedTourDetails(card, items, baseYm) {
+    card.replaceChildren();
+    card.dataset.state = "ready";
+    const heading = document.createElement("h2");
+    heading.className = "tour-info-heading";
+    heading.textContent = "함께 둘러보기 좋은 장소";
+    card.appendChild(heading);
+
+    if (!Array.isArray(items) || items.length === 0) {
+      const message = document.createElement("p");
+      message.className = "tour-info-message";
+      message.textContent = "한국관광공사에서 제공하는 연관 관광지 정보가 없습니다.";
+      card.appendChild(message);
+    } else {
+      const list = document.createElement("ul");
+      list.className = "tour-info-list";
+      for (const related of items.slice(0, 6)) {
+        const item = document.createElement("li");
+        const name = document.createElement("strong");
+        name.textContent = related.name;
+        const meta = document.createElement("span");
+        meta.textContent = [related.sourceName ? `${related.sourceName} 연관 장소` : null, related.category, related.areaName, related.sigunguName].filter(Boolean).join(" · ");
+        item.append(name, meta);
+        list.appendChild(item);
+      }
+      card.appendChild(list);
+    }
+    const period = /^\d{6}$/.test(baseYm ?? "") ? `${baseYm.slice(0, 4)}년 ${Number(baseYm.slice(4))}월` : null;
+    addInfoSource(card, period
+      ? `한국관광공사 관광지별 연관 관광지 정보 제공 · 최신 조회 가능 자료: ${period} (월별 집계)`
+      : "한국관광공사 관광지별 연관 관광지 정보 제공 · 최근 12개월 조회 결과 없음");
+  }
+
+  async function renderRelatedTourCard(district, mountId, version) {
+    const card = document.getElementById(mountId);
+    if (!card) return;
+    setInfoMessage(card, "함께 둘러보기 좋은 장소", "연관 관광지 정보를 불러오는 중...", "loading", "한국관광공사 관광지별 연관 관광지 정보 제공");
+    try {
+      const data = await getRelatedTours(district);
+      if (version !== renderVersion || !card.isConnected) return;
+      appendRelatedTourDetails(card, data.items, data.baseYm);
+    } catch (_) {
+      if (version !== renderVersion || !card.isConnected) return;
+      setInfoMessage(card, "함께 둘러보기 좋은 장소", "연관 관광지 정보를 불러오지 못했습니다.", "error", "한국관광공사 관광지별 연관 관광지 정보 제공");
+    }
+  }
+
+  function appendAudioGuideDetails(card, items) {
+    card.replaceChildren();
+    card.dataset.state = "ready";
+    const heading = document.createElement("h2");
+    heading.className = "tour-info-heading";
+    heading.textContent = "관광지 오디오 가이드";
+    card.appendChild(heading);
+
+    if (!Array.isArray(items) || items.length === 0) {
+      const message = document.createElement("p");
+      message.className = "tour-info-message";
+      message.textContent = "한국관광공사에서 제공하는 오디오 가이드 정보가 없습니다.";
+      card.appendChild(message);
+    } else {
+      const list = document.createElement("div");
+      list.className = "audio-guide-list";
+      for (const story of items) {
+        const item = document.createElement("section");
+        item.className = "audio-guide-item";
+        const title = document.createElement("h3");
+        title.textContent = story.audioTitle || story.title || "오디오 가이드";
+        item.appendChild(title);
+
+        try {
+          const audioUrl = new URL(story.audioUrl);
+          if (audioUrl.protocol === "https:") {
+            const audio = document.createElement("audio");
+            audio.controls = true;
+            audio.preload = "metadata";
+            audio.src = audioUrl.href;
+            item.appendChild(audio);
+          }
+        } catch (_) {
+          // Audio is optional. The script remains available if no safe HTTPS URL is supplied.
+        }
+
+        if (story.script) {
+          const script = document.createElement("p");
+          script.className = "audio-guide-script";
+          script.textContent = story.script;
+          item.appendChild(script);
+        }
+        list.appendChild(item);
+      }
+      card.appendChild(list);
+    }
+    addInfoSource(card, "한국관광공사 오디(Odii) 관광지 오디오 가이드정보 제공");
+  }
+
+  async function renderAudioGuideCard(tour, mountId, version) {
+    const card = document.getElementById(mountId);
+    if (!card) return;
+    setInfoMessage(card, "관광지 오디오 가이드", "오디오 가이드 정보를 불러오는 중...", "loading", "한국관광공사 오디(Odii) 관광지 오디오 가이드정보 제공");
+    try {
+      const data = await getAudioGuide(tour.audioKeyword || tour.name);
+      if (version !== renderVersion || !card.isConnected) return;
+      const stories = tour.audioStoryTitle
+        ? data.items.filter((story) => (story.audioTitle || story.title || "").trim() === tour.audioStoryTitle)
+        : data.items;
+      appendAudioGuideDetails(card, stories);
+    } catch (_) {
+      if (version !== renderVersion || !card.isConnected) return;
+      setInfoMessage(card, "관광지 오디오 가이드", "오디오 가이드 정보를 불러오지 못했습니다.", "error", "한국관광공사 오디(Odii) 관광지 오디오 가이드정보 제공");
+    }
+  }
+
   function playerMarkup(tour, index) {
     const playerId = `player-${tour.districtId}-${index}`;
     const statusId = `${playerId}-status`;
     const barrierFreeId = `${playerId}-barrier-free`;
+    const audioGuideId = `${playerId}-audio-guide`;
     const youtubeLink = `https://www.youtube.com/watch?v=${encodeURIComponent(tour.youtubeId)}`;
     return `
       <article class="tour-card">
@@ -202,6 +417,7 @@
               <p id="${statusId}" class="player-status" role="status">360° 영상을 불러오는 중...</p>
             </div>
             <section id="${barrierFreeId}" class="barrier-free-card" aria-live="polite"></section>
+            <section id="${audioGuideId}" class="tour-info-card" aria-live="polite"></section>
             <a href="${youtubeLink}" target="_blank" rel="noopener noreferrer" class="youtube-link-button">YouTube에서 고화질로 보기 ↗</a>
           </section>
           <section class="detail-column">
@@ -220,11 +436,19 @@
       setPageStatus("", false);
       return;
     }
-    tourView.innerHTML = selectedTours.map(playerMarkup).join("");
+    const festivalId = `festival-${district}`;
+    const relatedTourId = `related-${district}`;
+    tourView.innerHTML = `
+      <section id="${festivalId}" class="tour-info-card tour-info-card--district" aria-live="polite"></section>
+      <section id="${relatedTourId}" class="tour-info-card tour-info-card--district" aria-live="polite"></section>
+    ${selectedTours.map(playerMarkup).join("")}`;
   //  setPageStatus(`${districtLabels[district]} 관광지 ${selectedTours.length}곳`);
 
+    void renderFestivalCard(district, festivalId, version);
+    void renderRelatedTourCard(district, relatedTourId, version);
     selectedTours.forEach((tour, index) => {
       void renderBarrierFreeCard(tour, `player-${tour.districtId}-${index}-barrier-free`, version);
+      void renderAudioGuideCard(tour, `player-${tour.districtId}-${index}-audio-guide`, version);
     });
 
     const results = await Promise.allSettled(selectedTours.map((tour, index) => window.create360Player({

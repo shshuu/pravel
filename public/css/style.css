@@ -91,6 +91,22 @@ img { display: block; max-width: 100%; }
 .barrier-free-list dt { font-weight: 700; }
 .barrier-free-list dd { min-width: 0; margin: 0; line-height: 1.58; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
 .barrier-free-source { margin: 1rem 0 0; padding-top: .7rem; border-top: 1px solid rgba(48, 92, 74, .2); color: #57534c; font-size: .78rem; }
+.tour-info-card { margin-top: .9rem; border: 1px solid rgba(48, 92, 74, .42); border-radius: 8px; padding: clamp(.85rem, 2vw, 1.2rem); background: rgba(255, 255, 255, .86); overflow: hidden; }
+.tour-info-card--district { margin: 0; }
+.tour-info-heading { margin: 0 0 .85rem; color: #173f2e; font-size: 1.1rem; }
+.tour-info-message { margin: 0; line-height: 1.65; }
+.tour-info-card[data-state="error"] { border-color: rgba(157, 31, 47, .55); }
+.tour-info-card[data-state="error"] .tour-info-message { color: #9d1f2f; }
+.tour-info-source { margin: 1rem 0 0; padding-top: .7rem; border-top: 1px solid rgba(48, 92, 74, .2); color: #57534c; font-size: .78rem; }
+.tour-info-list { display: grid; gap: .7rem; margin: 0; padding: 0; list-style: none; }
+.tour-info-list li { display: grid; gap: .2rem; min-width: 0; }
+.tour-info-list strong { color: #173f2e; }
+.tour-info-list span { color: #57534c; font-size: .9rem; overflow-wrap: anywhere; word-break: break-word; }
+.audio-guide-list { display: grid; gap: 1rem; }
+.audio-guide-item + .audio-guide-item { padding-top: 1rem; border-top: 1px solid rgba(48, 92, 74, .2); }
+.audio-guide-item h3 { margin: 0 0 .55rem; color: #305c4a; font-size: 1rem; }
+.audio-guide-item audio { width: 100%; }
+.audio-guide-script { margin: .65rem 0 0; line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
 
 .test-page { display: grid; min-height: 100vh; place-items: center; padding: 1.5rem; }
 .test-panel { width: min(960px, 100%); padding: clamp(1rem, 3vw, 2rem); background: var(--paper); box-shadow: 0 3px 16px rgba(0, 0, 0, .15); }

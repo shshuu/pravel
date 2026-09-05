@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "check": "node --check public/js/app.js && node --check public/js/map.js && node --check public/js/youtube360.js && node --check src/worker.js"
+    "check": "node --check public/js/app.js && node --check public/js/map.js && node --check public/js/youtube360.js && node --check src/worker.js && node --check src/api/tourSearch.js && node --check src/api/tourNearby.js && node --check src/api/tourBarrierFree.js && node --check src/api/tourFestivals.js && node --check src/api/tourRelated.js && node --check src/api/tourAudio.js && node --check src/lib/tourApi.js && node --check src/lib/relatedTourApi.js && node --check src/lib/odiiApi.js"
   },
   "devDependencies": {
     "wrangler": "latest"

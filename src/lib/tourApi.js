@@ -1,6 +1,7 @@
 const TOUR_API_SEARCH_URL = "https://apis.data.go.kr/B551011/KorService2/searchKeyword2";
 const TOUR_API_NEARBY_URL = "https://apis.data.go.kr/B551011/KorService2/locationBasedList2";
 const TOUR_API_BARRIER_URL = "https://apis.data.go.kr/B551011/KorWithService2/detailWithTour2";
+const TOUR_API_FESTIVAL_URL = "https://apis.data.go.kr/B551011/KorService2/searchFestival2";
 
 export class TourApiError extends Error {
   constructor(code, details = {}) {
@@ -111,5 +112,26 @@ export async function searchNearby({ serviceKey, mapX, mapY, radius, fetchImpl =
 export async function fetchBarrierFreeInfo({ serviceKey, contentId, fetchImpl = fetch }) {
   const url = createTourApiUrl(TOUR_API_BARRIER_URL, serviceKey, { contentId });
 
+  return requestTourApi({ url, serviceKey, fetchImpl });
+}
+
+export async function searchFestivals({
+  serviceKey,
+  eventStartDate,
+  lDongRegnCd,
+  lDongSignguCd,
+  fetchImpl = fetch
+}) {
+  const parameters = {
+    eventStartDate,
+    lDongRegnCd,
+    numOfRows: "20",
+    pageNo: "1",
+    arrange: "A"
+  };
+
+  if (lDongSignguCd) parameters.lDongSignguCd = lDongSignguCd;
+
+  const url = createTourApiUrl(TOUR_API_FESTIVAL_URL, serviceKey, parameters);
   return requestTourApi({ url, serviceKey, fetchImpl });
 }

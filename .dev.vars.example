@@ -1,0 +1,7 @@
+# Use the Decoding key from data.go.kr. Do not commit a real .dev.vars file.
+TOUR_API_KR_KEY="replace-with-your-decoding-key"
+TOUR_API_BARRIER_KEY="replace-with-your-decoding-key"
+# These services require separate data.go.kr utilisation approval. They may use
+# the same key value as above only after that approval is granted.
+TOUR_API_RELATED_KEY="replace-with-your-decoding-key"
+TOUR_API_ODII_KEY="replace-with-your-decoding-key"
