@@ -65,7 +65,7 @@ export async function handleTourFestivals(request, env, { fetchImpl = fetch } = 
       serviceKey: env.TOUR_API_KR_KEY,
       eventStartDate: todayInKorea(),
       lDongRegnCd: "26",
-      lDongSignguCd,
+      //lDongSignguCd,
       fetchImpl
     });
 
