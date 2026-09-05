@@ -2,11 +2,11 @@ import { TourApiError, searchFestivals } from "../lib/tourApi.js";
 import { jsonResponse } from "../lib/http.js";
 
 const BUSAN_DISTRICT_CODES = {
-  gangseo: "26440",
-  gijang: "26710",
-  busanjin: "26230",
-  seo: "26140",
-  haeundae: "26350"
+  gangseo: "440",
+  gijang: "710",
+  busanjin: "230",
+  seo: "140",
+  haeundae: "350"
 };
 
 function json(data, status = 200) {
@@ -65,7 +65,7 @@ export async function handleTourFestivals(request, env, { fetchImpl = fetch } = 
       serviceKey: env.TOUR_API_KR_KEY,
       eventStartDate: todayInKorea(),
       lDongRegnCd: "26",
-      //lDongSignguCd,
+      lDongSignguCd,
       fetchImpl
     });
 
