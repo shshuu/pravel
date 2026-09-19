@@ -91,6 +91,17 @@
     return tokens.reduce((score, token) => score + (haystack.includes(token) ? 1 : 0), 0);
   }
 
+  function shouldExcludeMerchant(merchant) {
+    const name = merchant.name || "";
+    const haystack = `${name} ${merchant.address || ""}`;
+    return (
+      haystack.includes("택시") ||
+      haystack.includes("(부산)개인_") ||
+      /개인[_\s-]*\d{2}[가-힣]\d{4}/.test(haystack) ||
+      name.startsWith("T_해지")
+    );
+  }
+
   function cardAnchor(card) {
     const titleImage = card.querySelector(".tour-title-image");
     if (titleImage?.alt) return titleImage.alt;
@@ -132,6 +143,7 @@
       const merchants = await loadDistrictData(district);
       const tokens = anchorTokens(anchor);
       const ranked = merchants
+        .filter((merchant) => !shouldExcludeMerchant(merchant))
         .map((merchant) => ({ ...merchant, score: scoreMerchant(merchant, tokens) }))
         .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name, "ko"))
         .slice(0, 8);
