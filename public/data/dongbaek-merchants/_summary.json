@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-09-19T08:24:09.630Z",
+  "total": 163422,
+  "districts": {
+    "dong": 5092,
+    "busanjin": 17463,
+    "seo": 3513,
+    "gangseo": 6523,
+    "suyeong": 8800,
+    "dongnae": 11052,
+    "yeonje": 8129,
+    "saha": 11564,
+    "haeundae": 13740,
+    "buk": 8056,
+    "sasang": 9102,
+    "geumjeong": 10198,
+    "nam": 8850,
+    "jung": 5320,
+    "gijang": 7441,
+    "yeongdo": 3861,
+    "etc": 184
+  }
+}
