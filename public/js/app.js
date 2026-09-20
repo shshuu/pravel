@@ -462,50 +462,98 @@
   function appendAudioGuideDetails(card, items) {
     card.replaceChildren();
     card.dataset.state = "ready";
+
     const heading = document.createElement("h2");
     heading.className = "tour-info-heading";
     heading.textContent = "관광지 오디오 가이드";
-    card.appendChild(heading);
 
+    // 오디오 가이드 정보가 없는 경우
     if (!Array.isArray(items) || items.length === 0) {
+      card.appendChild(heading);
+
       const message = document.createElement("p");
       message.className = "tour-info-message";
       message.textContent = "한국관광공사에서 제공하는 오디오 가이드 정보가 없습니다.";
       card.appendChild(message);
-    } else {
-      const list = document.createElement("div");
-      list.className = "audio-guide-list";
-      for (const story of items) {
-        const item = document.createElement("section");
-        item.className = "audio-guide-item";
-        const title = document.createElement("h3");
-        title.textContent = story.audioTitle || story.title || "오디오 가이드";
-        item.appendChild(title);
 
-        try {
-          const audioUrl = new URL(story.audioUrl);
-          if (audioUrl.protocol === "https:") {
-            const audio = document.createElement("audio");
-            audio.controls = true;
-            audio.preload = "metadata";
-            audio.src = audioUrl.href;
-            item.appendChild(audio);
-          }
-        } catch (_) {
-          // Audio is optional. The script remains available if no safe HTTPS URL is supplied.
-        }
-
-        if (story.script) {
-          const script = document.createElement("p");
-          script.className = "audio-guide-script";
-          script.textContent = story.script;
-          item.appendChild(script);
-        }
-        list.appendChild(item);
-      }
-      card.appendChild(list);
+      addInfoSource(card, "ⓒ 한국관광공사");
+      return;
     }
-    addInfoSource(card, "ⓒ 한국관광공사");
+
+    // 오디오 가이드 정보가 있을 때만 토글 적용
+    heading.style.cursor = "pointer";
+    heading.setAttribute("role", "button");
+    heading.setAttribute("tabindex", "0");
+    heading.setAttribute("aria-expanded", "false");
+
+    const arrow = document.createElement("span");
+    arrow.textContent = " ▼";
+    arrow.className = "tour-info-toggle-arrow";
+    heading.appendChild(arrow);
+
+    const content = document.createElement("div");
+    content.className = "tour-info-content";
+    content.hidden = true;
+
+    const list = document.createElement("div");
+    list.className = "audio-guide-list";
+
+    for (const story of items) {
+      const item = document.createElement("section");
+      item.className = "audio-guide-item";
+
+      const title = document.createElement("h3");
+      title.textContent = story.audioTitle || story.title || "오디오 가이드";
+      item.appendChild(title);
+
+      try {
+        const audioUrl = new URL(story.audioUrl);
+
+        if (audioUrl.protocol === "https:") {
+          const audio = document.createElement("audio");
+          audio.controls = true;
+          audio.preload = "metadata";
+          audio.src = audioUrl.href;
+          item.appendChild(audio);
+        }
+      } catch (_) {
+        // Audio is optional.
+      }
+
+      if (story.script) {
+        const script = document.createElement("p");
+        script.className = "audio-guide-script";
+        script.textContent = story.script;
+        item.appendChild(script);
+      }
+
+      list.appendChild(item);
+    }
+
+    content.appendChild(list);
+
+    // 출처도 토글 영역 안에 포함
+    addInfoSource(content, "ⓒ 한국관광공사");
+
+    const toggle = () => {
+      const isOpen = !content.hidden;
+
+      content.hidden = isOpen;
+      heading.setAttribute("aria-expanded", String(!isOpen));
+      arrow.textContent = isOpen ? " ▼" : " ▲";
+    };
+
+    heading.addEventListener("click", toggle);
+
+    heading.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        toggle();
+      }
+    });
+
+    card.appendChild(heading);
+    card.appendChild(content);
   }
 
   async function renderAudioGuideCard(tour, mountId, version) {
