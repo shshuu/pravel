@@ -80,7 +80,7 @@
   function addBarrierFreeSource(card) {
     const source = document.createElement("p");
     source.className = "barrier-free-source";
-    source.textContent = "한국관광공사 무장애 여행정보 제공";
+    source.textContent = "ⓒ 한국관광공사";
     card.appendChild(source);
   }
 
@@ -270,20 +270,20 @@
       }
       card.appendChild(list);
     }
-    addInfoSource(card, "한국관광공사 관광정보 제공");
+    addInfoSource(card, "ⓒ 한국관광공사");
   }
 
   async function renderFestivalCard(district, mountId, version) {
     const card = document.getElementById(mountId);
     if (!card) return;
-    setInfoMessage(card, "부산 축제·행사", "축제·행사 정보를 불러오는 중...", "loading", "한국관광공사 관광정보 제공");
+    setInfoMessage(card, "부산 축제·행사", "축제·행사 정보를 불러오는 중...", "loading", "ⓒ 한국관광공사");
     try {
       const data = await getFestivals(district);
       if (version !== renderVersion || !card.isConnected) return;
       appendFestivalDetails(card, data.items);
     } catch (_) {
       if (version !== renderVersion || !card.isConnected) return;
-      setInfoMessage(card, "부산 축제·행사", "축제·행사 정보를 불러오지 못했습니다.", "error", "한국관광공사 관광정보 제공");
+      setInfoMessage(card, "부산 축제·행사", "축제·행사 정보를 불러오지 못했습니다.", "error", "ⓒ 한국관광공사");
     }
   }
 
@@ -316,21 +316,21 @@
     }
     const period = /^\d{6}$/.test(baseYm ?? "") ? `${baseYm.slice(0, 4)}년 ${Number(baseYm.slice(4))}월` : null;
     addInfoSource(card, period
-      ? `한국관광공사 관광지별 연관 관광지 정보 제공 · 최신 조회 가능 자료: ${period} (월별 집계)`
-      : "한국관광공사 관광지별 연관 관광지 정보 제공 · 최근 12개월 조회 결과 없음");
+      ? `ⓒ 한국관광공사 · 최신 조회 가능 자료: ${period} (월별 집계)`
+      : "ⓒ 한국관광공사 · 최근 12개월 조회 결과 없음");
   }
 
   async function renderRelatedTourCard(district, mountId, version) {
     const card = document.getElementById(mountId);
     if (!card) return;
-    setInfoMessage(card, "함께 둘러보기 좋은 장소", "연관 관광지 정보를 불러오는 중...", "loading", "한국관광공사 관광지별 연관 관광지 정보 제공");
+    setInfoMessage(card, "함께 둘러보기 좋은 장소", "연관 관광지 정보를 불러오는 중...", "loading", "ⓒ 한국관광공사");
     try {
       const data = await getRelatedTours(district);
       if (version !== renderVersion || !card.isConnected) return;
       appendRelatedTourDetails(card, data.items, data.baseYm);
     } catch (_) {
       if (version !== renderVersion || !card.isConnected) return;
-      setInfoMessage(card, "함께 둘러보기 좋은 장소", "연관 관광지 정보를 불러오지 못했습니다.", "error", "한국관광공사 관광지별 연관 관광지 정보 제공");
+      setInfoMessage(card, "함께 둘러보기 좋은 장소", "연관 관광지 정보를 불러오지 못했습니다.", "error", "ⓒ 한국관광공사");
     }
   }
 
@@ -380,13 +380,13 @@
       }
       card.appendChild(list);
     }
-    addInfoSource(card, "한국관광공사 오디(Odii) 관광지 오디오 가이드정보 제공");
+    addInfoSource(card, "ⓒ 한국관광공사");
   }
 
   async function renderAudioGuideCard(tour, mountId, version) {
     const card = document.getElementById(mountId);
     if (!card) return;
-    setInfoMessage(card, "관광지 오디오 가이드", "오디오 가이드 정보를 불러오는 중...", "loading", "한국관광공사 오디(Odii) 관광지 오디오 가이드정보 제공");
+    setInfoMessage(card, "관광지 오디오 가이드", "오디오 가이드 정보를 불러오는 중...", "loading", "ⓒ 한국관광공사");
     try {
       const data = await getAudioGuide(tour.audioKeyword || tour.name);
       if (version !== renderVersion || !card.isConnected) return;
@@ -396,7 +396,7 @@
       appendAudioGuideDetails(card, stories);
     } catch (_) {
       if (version !== renderVersion || !card.isConnected) return;
-      setInfoMessage(card, "관광지 오디오 가이드", "오디오 가이드 정보를 불러오지 못했습니다.", "error", "한국관광공사 오디(Odii) 관광지 오디오 가이드정보 제공");
+      setInfoMessage(card, "관광지 오디오 가이드", "오디오 가이드 정보를 불러오지 못했습니다.", "error", "ⓒ 한국관광공사");
     }
   }
 
