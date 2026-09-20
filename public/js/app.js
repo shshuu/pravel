@@ -302,7 +302,7 @@
 
     content.appendChild(list);
 
-    addInfoSource(card, "ⓒ 한국관광공사");
+    addInfoSource(content, "ⓒ 한국관광공사");
 
     const toggle = () => {
       const isOpen = !content.hidden;
