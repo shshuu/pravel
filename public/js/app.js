@@ -145,48 +145,100 @@
     card.replaceChildren();
     card.dataset.state = "ready";
 
+    let visibleFieldCount = 0;
+
+    // 제목
     const heading = document.createElement("h2");
     heading.className = "barrier-free-heading";
     heading.textContent = "무장애 관광 정보";
-    card.appendChild(heading);
 
-    let visibleFieldCount = 0;
+    // 실제 내용이 들어갈 영역
+    const content = document.createElement("div");
+    content.className = "barrier-free-content";
+    content.hidden = true;
+
     for (const category of accessibilityCategoryOrder) {
       const fields = accessibility?.[category];
       if (!fields || typeof fields !== "object") continue;
 
       const entries = Object.entries(fields).filter(([field, value]) => (
-        Object.hasOwn(ACCESSIBILITY_LABELS, field) && typeof value === "string" && value.trim()
+        Object.hasOwn(ACCESSIBILITY_LABELS, field) &&
+        typeof value === "string" &&
+        value.trim()
       ));
+
       if (entries.length === 0) continue;
 
       const section = document.createElement("section");
       section.className = "barrier-free-category";
+
       const categoryHeading = document.createElement("h3");
       categoryHeading.textContent = ACCESSIBILITY_CATEGORY_LABELS[category];
       section.appendChild(categoryHeading);
 
       const list = document.createElement("dl");
       list.className = "barrier-free-list";
+
       for (const [field, value] of entries) {
         const label = document.createElement("dt");
         label.textContent = ACCESSIBILITY_LABELS[field];
+
         const description = document.createElement("dd");
         description.textContent = value;
+
         list.append(label, description);
         visibleFieldCount += 1;
       }
+
       section.appendChild(list);
-      card.appendChild(section);
+      content.appendChild(section);
     }
 
+    // 무장애 정보가 없는 경우
     if (visibleFieldCount === 0) {
       const message = document.createElement("p");
       message.className = "barrier-free-message";
       message.textContent = "한국관광공사에서 제공하는 무장애 관광정보가 없습니다.";
+
+      card.appendChild(heading);
       card.appendChild(message);
+      addBarrierFreeSource(card);
+      return;
     }
-    addBarrierFreeSource(card);
+
+    // 정보가 있을 경우 제목에 토글 기능 추가
+    heading.style.cursor = "pointer";
+    heading.setAttribute("role", "button");
+    heading.setAttribute("tabindex", "0");
+    heading.setAttribute("aria-expanded", "false");
+
+    const arrow = document.createElement("span");
+    arrow.textContent = " ▼";
+    arrow.className = "barrier-free-toggle-arrow";
+    heading.appendChild(arrow);
+
+    // 출처도 접히는 영역 안에 넣기
+    addBarrierFreeSource(content);
+
+    const toggle = () => {
+      const isOpen = !content.hidden;
+
+      content.hidden = isOpen;
+      heading.setAttribute("aria-expanded", String(!isOpen));
+      arrow.textContent = isOpen ? " ▼" : " ▲";
+    };
+
+    heading.addEventListener("click", toggle);
+
+    heading.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        toggle();
+      }
+    });
+
+    card.appendChild(heading);
+    card.appendChild(content);
   }
 
   async function getBarrierFreeInfo(contentId) {
