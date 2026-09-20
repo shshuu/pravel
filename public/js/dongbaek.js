@@ -168,22 +168,81 @@
 
     document.querySelectorAll(".tour-card").forEach((card, index) => {
       if (mountedCards.has(card)) return;
+
       const videoColumn = card.querySelector(".video-column");
       if (!videoColumn) return;
 
       mountedCards.add(card);
+
       const section = document.createElement("section");
       section.className = "dongbaek-section";
-      section.setAttribute("aria-labelledby", `dongbaek-heading-${district}-${index}`);
-      section.innerHTML = `
-        <h2 id="dongbaek-heading-${district}-${index}">주변 동백전 가맹점</h2>
-        <p class="dongbaek-status" role="status">가맹점 정보를 불러오는 중...</p>
-        <div class="dongbaek-list"></div>
-      `;
+      section.setAttribute(
+        "aria-labelledby",
+        `dongbaek-heading-${district}-${index}`
+      );
+
+      // 제목
+      const heading = document.createElement("h2");
+      heading.id = `dongbaek-heading-${district}-${index}`;
+      heading.textContent = "주변 동백전 가맹점";
+
+      // 접히는 내용 영역
+      const content = document.createElement("div");
+      content.className = "dongbaek-content";
+      content.hidden = true;
+
+      // 상태 메시지
+      const status = document.createElement("p");
+      status.className = "dongbaek-status";
+      status.setAttribute("role", "status");
+      status.textContent = "가맹점 정보를 불러오는 중...";
+
+      // 가맹점 목록
+      const list = document.createElement("div");
+      list.className = "dongbaek-list";
+
+      content.appendChild(status);
+      content.appendChild(list);
+
+      // 토글 화살표
+      const arrow = document.createElement("span");
+      arrow.textContent = " ▼";
+      arrow.className = "dongbaek-toggle-arrow";
+      heading.appendChild(arrow);
+
+      // 제목 토글 설정
+      heading.style.cursor = "pointer";
+      heading.setAttribute("role", "button");
+      heading.setAttribute("tabindex", "0");
+      heading.setAttribute("aria-expanded", "false");
+
+      const toggle = () => {
+        const isOpen = !content.hidden;
+
+        content.hidden = isOpen;
+        heading.setAttribute("aria-expanded", String(!isOpen));
+        arrow.textContent = isOpen ? " ▼" : " ▲";
+      };
+
+      heading.addEventListener("click", toggle);
+
+      heading.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          toggle();
+        }
+      });
+
+      section.appendChild(heading);
+      section.appendChild(content);
 
       const youtubeLink = videoColumn.querySelector(".youtube-link-button");
-      if (youtubeLink) youtubeLink.insertAdjacentElement("beforebegin", section);
-      else videoColumn.appendChild(section);
+
+      if (youtubeLink) {
+        youtubeLink.insertAdjacentElement("beforebegin", section);
+      } else {
+        videoColumn.appendChild(section);
+      }
 
       void renderSection(section, district, cardAnchor(card));
     });
