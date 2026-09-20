@@ -14,7 +14,11 @@
       background: rgba(255, 255, 255, .9);
     }
     .dongbaek-section h2 {
-      margin: 0 0 .45rem;
+      margin: 0;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      box-sizing: border-box;
       font-size: 1.05rem;
     }
     .dongbaek-status {
