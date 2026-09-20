@@ -718,6 +718,12 @@
     window.scrollTo(0, 0);
   }
 
+  // sidebar1.png 클릭 시 홈으로 이동
+  const sidebarHomeImage = document.querySelector("#sidebar-home-image");
+  sidebarHomeImage?.addEventListener("click", () => {
+    navigate("home");
+  });
+
   window.pravelNavigate = navigate; // window 객체에 navigate 함수 등록
 
   menu.addEventListener("click", (event) => {
