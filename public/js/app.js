@@ -342,34 +342,107 @@
   function appendRelatedTourDetails(card, items, baseYm) {
     card.replaceChildren();
     card.dataset.state = "ready";
+
     const heading = document.createElement("h2");
     heading.className = "tour-info-heading";
     heading.textContent = "함께 둘러보기 좋은 장소";
-    card.appendChild(heading);
 
+    // 연관 관광지 정보가 없는 경우
     if (!Array.isArray(items) || items.length === 0) {
+      card.appendChild(heading);
+
       const message = document.createElement("p");
       message.className = "tour-info-message";
       message.textContent = "한국관광공사에서 제공하는 연관 관광지 정보가 없습니다.";
       card.appendChild(message);
-    } else {
-      const list = document.createElement("ul");
-      list.className = "tour-info-list";
-      for (const related of items.slice(0, 6)) {
-        const item = document.createElement("li");
-        const name = document.createElement("strong");
-        name.textContent = related.name;
-        const meta = document.createElement("span");
-        meta.textContent = [related.sourceName ? `${related.sourceName} 연관 장소` : null, related.category, related.areaName, related.sigunguName].filter(Boolean).join(" · ");
-        item.append(name, meta);
-        list.appendChild(item);
-      }
-      card.appendChild(list);
+
+      const period = /^\d{6}$/.test(baseYm ?? "")
+        ? `${baseYm.slice(0, 4)}년 ${Number(baseYm.slice(4))}월`
+        : null;
+
+      addInfoSource(
+        card,
+        period
+          ? `ⓒ 한국관광공사 · 최신 조회 가능 자료: ${period} (월별 집계)`
+          : "ⓒ 한국관광공사 · 최근 12개월 조회 결과 없음"
+      );
+
+      return;
     }
-    const period = /^\d{6}$/.test(baseYm ?? "") ? `${baseYm.slice(0, 4)}년 ${Number(baseYm.slice(4))}월` : null;
-    addInfoSource(card, period
-      ? `ⓒ 한국관광공사 · 최신 조회 가능 자료: ${period} (월별 집계)`
-      : "ⓒ 한국관광공사 · 최근 12개월 조회 결과 없음");
+
+    // 연관 관광지 정보가 있을 때만 토글 적용
+    heading.style.cursor = "pointer";
+    heading.setAttribute("role", "button");
+    heading.setAttribute("tabindex", "0");
+    heading.setAttribute("aria-expanded", "false");
+
+    const arrow = document.createElement("span");
+    arrow.textContent = " ▼";
+    arrow.className = "tour-info-toggle-arrow";
+    heading.appendChild(arrow);
+
+    const content = document.createElement("div");
+    content.className = "tour-info-content";
+    content.hidden = true;
+
+    const list = document.createElement("ul");
+    list.className = "tour-info-list";
+
+    for (const related of items.slice(0, 6)) {
+      const item = document.createElement("li");
+
+      const name = document.createElement("strong");
+      name.textContent = related.name;
+
+      const meta = document.createElement("span");
+      meta.textContent = [
+        related.sourceName
+          ? `${related.sourceName} 연관 장소`
+          : null,
+        related.category,
+        related.areaName,
+        related.sigunguName
+      ]
+        .filter(Boolean)
+        .join(" · ");
+
+      item.append(name, meta);
+      list.appendChild(item);
+    }
+
+    content.appendChild(list);
+
+    // 출처도 토글 영역 안에 포함
+    const period = /^\d{6}$/.test(baseYm ?? "")
+      ? `${baseYm.slice(0, 4)}년 ${Number(baseYm.slice(4))}월`
+      : null;
+
+    addInfoSource(
+      content,
+      period
+        ? `ⓒ 한국관광공사 · 최신 조회 가능 자료: ${period} (월별 집계)`
+        : "ⓒ 한국관광공사 · 최근 12개월 조회 결과 없음"
+    );
+
+    const toggle = () => {
+      const isOpen = !content.hidden;
+
+      content.hidden = isOpen;
+      heading.setAttribute("aria-expanded", String(!isOpen));
+      arrow.textContent = isOpen ? " ▼" : " ▲";
+    };
+
+    heading.addEventListener("click", toggle);
+
+    heading.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        toggle();
+      }
+    });
+
+    card.appendChild(heading);
+    card.appendChild(content);
   }
 
   async function renderRelatedTourCard(district, mountId, version) {
