@@ -302,6 +302,8 @@
 
     content.appendChild(list);
 
+    addInfoSource(card, "ⓒ 한국관광공사");
+
     const toggle = () => {
       const isOpen = !content.hidden;
 
@@ -321,8 +323,6 @@
 
     card.appendChild(heading);
     card.appendChild(content);
-
-    addInfoSource(card, "ⓒ 한국관광공사");
   }
 
   async function renderFestivalCard(district, mountId, version) {
